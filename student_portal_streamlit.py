@@ -10,7 +10,6 @@ DB_FILE = "students.db"
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 c = conn.cursor()
 
-# Create students table
 c.execute('''
 CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,10 +58,13 @@ if 'page' not in st.session_state:
 
 # Sidebar Navigation
 st.sidebar.title("Menu")
-page = st.sidebar.radio("Go to", ["Home", "Register", "Login"])
 if st.session_state['user']:
-    page = "Dashboard"  # Automatically redirect logged-in users to Dashboard
-st.session_state['page'] = page
+    sidebar_options = ["Dashboard", "Logout"]
+else:
+    sidebar_options = ["Home", "Register", "Login"]
+
+choice = st.sidebar.radio("Go to", sidebar_options)
+st.session_state['page'] = choice
 
 # --------------------------
 # Pages
@@ -88,16 +90,14 @@ elif st.session_state['page'] == "Register":
             if success:
                 st.success("Account created successfully! Please log in.")
                 st.session_state['page'] = "Login"
-                st.experimental_rerun()
             else:
                 st.error("Email already registered!")
         else:
             st.warning("Please fill in all fields.")
 
-    st.markdown("Already have an account? [Login here](#)")
+    st.markdown("Already have an account?")
     if st.button("Go to Login"):
         st.session_state['page'] = "Login"
-        st.experimental_rerun()
 
 # ----- Login -----
 elif st.session_state['page'] == "Login":
@@ -111,7 +111,6 @@ elif st.session_state['page'] == "Login":
             st.session_state['user'] = result
             st.success(f"Welcome {result[1]} 👋")
             st.session_state['page'] = "Dashboard"
-            st.experimental_rerun()
         else:
             st.error("Invalid email or password.")
 
@@ -139,8 +138,6 @@ elif st.session_state['page'] == "Dashboard":
             st.session_state['user'] = None
             st.session_state['page'] = "Home"
             st.success("Logged out successfully.")
-            st.experimental_rerun()
     else:
         st.warning("Please login first.")
         st.session_state['page'] = "Login"
-        st.experimental_rerun()
