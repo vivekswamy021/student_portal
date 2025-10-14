@@ -44,26 +44,38 @@ def login_student(email, password):
     return c.fetchone()
 
 # --------------------------
-# Streamlit App
+# Streamlit App Setup
 # --------------------------
 st.set_page_config(page_title="Student Portal", layout="centered")
 st.title("🎓 Student Portal")
 
-# Session State
+# --------------------------
+# Session State Initialization
+# --------------------------
 if 'user' not in st.session_state:
     st.session_state['user'] = None
+if 'page' not in st.session_state:
+    st.session_state['page'] = "Home"
 
-menu = ["Home", "Register", "Login"]
-choice = st.sidebar.selectbox("Menu", menu)
+# Sidebar Navigation
+st.sidebar.title("Menu")
+page = st.sidebar.radio("Go to", ["Home", "Register", "Login"])
+if st.session_state['user']:
+    page = "Dashboard"  # Automatically redirect logged-in users to Dashboard
+st.session_state['page'] = page
 
-# ---- Home ----
-if choice == "Home":
+# --------------------------
+# Pages
+# --------------------------
+
+# ----- Home -----
+if st.session_state['page'] == "Home":
     st.write("Welcome to the Student Portal!")
     if st.session_state['user']:
         st.success(f"Logged in as {st.session_state['user'][1]}")
 
-# ---- Register ----
-elif choice == "Register":
+# ----- Register -----
+elif st.session_state['page'] == "Register":
     st.subheader("Create Account")
     name = st.text_input("Full Name")
     email = st.text_input("Email")
@@ -75,13 +87,20 @@ elif choice == "Register":
             success = add_student(name, email, password, course)
             if success:
                 st.success("Account created successfully! Please log in.")
+                st.session_state['page'] = "Login"
+                st.experimental_rerun()
             else:
                 st.error("Email already registered!")
         else:
             st.warning("Please fill in all fields.")
 
-# ---- Login ----
-elif choice == "Login":
+    st.markdown("Already have an account? [Login here](#)")
+    if st.button("Go to Login"):
+        st.session_state['page'] = "Login"
+        st.experimental_rerun()
+
+# ----- Login -----
+elif st.session_state['page'] == "Login":
     st.subheader("Login")
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
@@ -91,30 +110,37 @@ elif choice == "Login":
         if result:
             st.session_state['user'] = result
             st.success(f"Welcome {result[1]} 👋")
+            st.session_state['page'] = "Dashboard"
+            st.experimental_rerun()
         else:
             st.error("Invalid email or password.")
 
-# ---- Dashboard after login ----
-if st.session_state['user']:
-    st.write("---")
-    st.subheader("📊 Dashboard")
-    user = st.session_state['user']
-    st.write(f"**Name:** {user[1]}")
-    st.write(f"**Email:** {user[2]}")
-    st.write(f"**Course:** {user[4]}")
-    
-    # Placeholder for assignments
-    st.subheader("📁 Assignments")
-    uploaded_file = st.file_uploader("Upload Assignment")
-    if uploaded_file:
-        file_path = os.path.join("uploads", uploaded_file.name)
-        os.makedirs("uploads", exist_ok=True)
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.success(f"Uploaded {uploaded_file.name}")
-    
-    # Logout button
-    if st.button("Logout"):
-        st.session_state['user'] = None
-        st.success("Logged out successfully.")
+# ----- Dashboard -----
+elif st.session_state['page'] == "Dashboard":
+    if st.session_state['user']:
+        st.subheader("📊 Dashboard")
+        user = st.session_state['user']
+        st.write(f"**Name:** {user[1]}")
+        st.write(f"**Email:** {user[2]}")
+        st.write(f"**Course:** {user[4]}")
+
+        # Assignments Upload
+        st.subheader("📁 Assignments")
+        uploaded_file = st.file_uploader("Upload Assignment")
+        if uploaded_file:
+            os.makedirs("uploads", exist_ok=True)
+            file_path = os.path.join("uploads", uploaded_file.name)
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            st.success(f"Uploaded {uploaded_file.name}")
+
+        # Logout
+        if st.button("Logout"):
+            st.session_state['user'] = None
+            st.session_state['page'] = "Home"
+            st.success("Logged out successfully.")
+            st.experimental_rerun()
+    else:
+        st.warning("Please login first.")
+        st.session_state['page'] = "Login"
         st.experimental_rerun()
