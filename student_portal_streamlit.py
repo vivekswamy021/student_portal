@@ -56,9 +56,8 @@ if 'user' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state['page'] = "Home"
 
-# --------------------------
 # Sidebar Navigation
-# --------------------------
+st.sidebar.title("Menu")
 if st.session_state['user']:
     sidebar_options = ["Dashboard", "Logout"]
 else:
@@ -80,12 +79,12 @@ if st.session_state['page'] == "Home":
 # ----- Register -----
 elif st.session_state['page'] == "Register":
     st.subheader("Create Account")
-    name = st.text_input("Full Name", key="reg_name")
-    email = st.text_input("Email", key="reg_email")
-    password = st.text_input("Password", type="password", key="reg_pass")
-    course = st.text_input("Course", key="reg_course")
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+    course = st.text_input("Course")
 
-    if st.button("Register", key="register_btn"):
+    if st.button("Register"):
         if name and email and password and course:
             success = add_student(name, email, password, course)
             if success:
@@ -96,19 +95,17 @@ elif st.session_state['page'] == "Register":
         else:
             st.warning("Please fill in all fields.")
 
-    # ----- Clickable Link to Login -----
     st.markdown("Already have an account?")
-    # Simulate a link using a button with minimal styling
-    if st.button("Login here", key="login_link"):
+    if st.button("Go to Login"):
         st.session_state['page'] = "Login"
 
 # ----- Login -----
 elif st.session_state['page'] == "Login":
     st.subheader("Login")
-    email = st.text_input("Email", key="login_email")
-    password = st.text_input("Password", type="password", key="login_pass")
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
 
-    if st.button("Login", key="login_btn"):
+    if st.button("Login"):
         result = login_student(email, password)
         if result:
             st.session_state['user'] = result
@@ -137,7 +134,7 @@ elif st.session_state['page'] == "Dashboard":
             st.success(f"Uploaded {uploaded_file.name}")
 
         # Logout
-        if st.button("Logout", key="logout_btn"):
+        if st.button("Logout"):
             st.session_state['user'] = None
             st.session_state['page'] = "Home"
             st.success("Logged out successfully.")
