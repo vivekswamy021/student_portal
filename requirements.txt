@@ -1,2 +1,2 @@
-streamlit
-sqllite3
+streamlit==1.30.0
+pandas==2.1.0
