@@ -10,7 +10,6 @@ DB_FILE = "students.db"
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 c = conn.cursor()
 
-# Create students table
 c.execute('''
 CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,12 +43,6 @@ def login_student(email, password):
     return c.fetchone()
 
 # --------------------------
-# Streamlit App Setup
-# --------------------------
-st.set_page_config(page_title="Student Portal", layout="centered")
-st.title("🎓 Student Portal")
-
-# --------------------------
 # Session State Initialization
 # --------------------------
 if 'user' not in st.session_state:
@@ -57,12 +50,22 @@ if 'user' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state['page'] = "Home"
 
+# --------------------------
+# Streamlit App
+# --------------------------
+st.set_page_config(page_title="Student Portal", layout="centered")
+st.title("🎓 Student Portal")
+
+# --------------------------
 # Sidebar Navigation
-st.sidebar.title("Menu")
-page = st.sidebar.radio("Go to", ["Home", "Register", "Login"])
+# --------------------------
 if st.session_state['user']:
-    page = "Dashboard"  # Automatically redirect logged-in users to Dashboard
-st.session_state['page'] = page
+    sidebar_options = ["Dashboard", "Logout"]
+else:
+    sidebar_options = ["Home", "Register", "Login"]
+
+choice = st.sidebar.radio("Go to", sidebar_options)
+st.session_state['page'] = choice
 
 # --------------------------
 # Pages
@@ -77,41 +80,41 @@ if st.session_state['page'] == "Home":
 # ----- Register -----
 elif st.session_state['page'] == "Register":
     st.subheader("Create Account")
-    name = st.text_input("Full Name")
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
-    course = st.text_input("Course")
+    name = st.text_input("Full Name", key="reg_name")
+    email = st.text_input("Email", key="reg_email")
+    password = st.text_input("Password", type="password", key="reg_pass")
+    course = st.text_input("Course", key="reg_course")
 
-    if st.button("Register"):
+    if st.button("Register", key="register_btn"):
         if name and email and password and course:
             success = add_student(name, email, password, course)
             if success:
                 st.success("Account created successfully! Please log in.")
                 st.session_state['page'] = "Login"
-                st.experimental_rerun()
             else:
                 st.error("Email already registered!")
         else:
             st.warning("Please fill in all fields.")
 
-    st.markdown("Already have an account? [Login here](#)")
-    if st.button("Go to Login"):
+    # ------------------------------
+    # Real clickable Login link
+    # ------------------------------
+    st.write("Already have an account?")
+    if st.button("Login here", key="go_login_btn"):
         st.session_state['page'] = "Login"
-        st.experimental_rerun()
 
 # ----- Login -----
 elif st.session_state['page'] == "Login":
     st.subheader("Login")
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_pass")
 
-    if st.button("Login"):
+    if st.button("Login", key="login_btn"):
         result = login_student(email, password)
         if result:
             st.session_state['user'] = result
             st.success(f"Welcome {result[1]} 👋")
             st.session_state['page'] = "Dashboard"
-            st.experimental_rerun()
         else:
             st.error("Invalid email or password.")
 
@@ -124,7 +127,6 @@ elif st.session_state['page'] == "Dashboard":
         st.write(f"**Email:** {user[2]}")
         st.write(f"**Course:** {user[4]}")
 
-        # Assignments Upload
         st.subheader("📁 Assignments")
         uploaded_file = st.file_uploader("Upload Assignment")
         if uploaded_file:
@@ -134,13 +136,10 @@ elif st.session_state['page'] == "Dashboard":
                 f.write(uploaded_file.getbuffer())
             st.success(f"Uploaded {uploaded_file.name}")
 
-        # Logout
-        if st.button("Logout"):
+        if st.button("Logout", key="logout_btn"):
             st.session_state['user'] = None
             st.session_state['page'] = "Home"
             st.success("Logged out successfully.")
-            st.experimental_rerun()
     else:
         st.warning("Please login first.")
         st.session_state['page'] = "Login"
-        st.experimental_rerun()
