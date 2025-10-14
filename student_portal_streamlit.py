@@ -49,7 +49,7 @@ st.set_page_config(page_title="Student Portal", layout="centered")
 st.title("🎓 Student Portal")
 
 # --------------------------
-# Session State Initialization
+# Session State
 # --------------------------
 if 'user' not in st.session_state:
     st.session_state['user'] = None
@@ -96,15 +96,24 @@ elif st.session_state['page'] == "Register":
         else:
             st.warning("Please fill in all fields.")
 
-    # ------------------------------
-    # Clickable Login link (no button)
-    # ------------------------------
-    st.markdown(
-        '<p>Already have an account? <a href="javascript:void(0)" onclick="window.location.reload();">Login here</a></p>',
-        unsafe_allow_html=True
-    )
-    # Trick: detect the link click via a checkbox
-    if st.checkbox("___go_to_login", value=False, key="hidden_login"):
+    # ✅ Real clickable "Login here" link
+    st.write("Already have an account?")
+    # Use a button styled as a link
+    login_link_style = """
+    <style>
+    .login-link button{
+        background-color: transparent;
+        border: none;
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0;
+    }
+    </style>
+    """
+    st.markdown(login_link_style, unsafe_allow_html=True)
+    if st.button("Login here", key="login_link", help="Login link"):
         st.session_state['page'] = "Login"
 
 # ----- Login -----
@@ -144,6 +153,3 @@ elif st.session_state['page'] == "Dashboard":
             st.session_state['user'] = None
             st.session_state['page'] = "Home"
             st.success("Logged out successfully.")
-    else:
-        st.warning("Please login first.")
-        st.session_state['page'] = "Login"
