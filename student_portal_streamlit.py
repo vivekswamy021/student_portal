@@ -43,18 +43,18 @@ def login_student(email, password):
     return c.fetchone()
 
 # --------------------------
+# Streamlit App Setup
+# --------------------------
+st.set_page_config(page_title="Student Portal", layout="centered")
+st.title("🎓 Student Portal")
+
+# --------------------------
 # Session State Initialization
 # --------------------------
 if 'user' not in st.session_state:
     st.session_state['user'] = None
 if 'page' not in st.session_state:
     st.session_state['page'] = "Home"
-
-# --------------------------
-# Streamlit App
-# --------------------------
-st.set_page_config(page_title="Student Portal", layout="centered")
-st.title("🎓 Student Portal")
 
 # --------------------------
 # Sidebar Navigation
@@ -97,10 +97,14 @@ elif st.session_state['page'] == "Register":
             st.warning("Please fill in all fields.")
 
     # ------------------------------
-    # Real clickable Login link
+    # Clickable Login link (no button)
     # ------------------------------
-    st.write("Already have an account?")
-    if st.button("Login here", key="go_login_btn"):
+    st.markdown(
+        '<p>Already have an account? <a href="javascript:void(0)" onclick="window.location.reload();">Login here</a></p>',
+        unsafe_allow_html=True
+    )
+    # Trick: detect the link click via a checkbox
+    if st.checkbox("___go_to_login", value=False, key="hidden_login"):
         st.session_state['page'] = "Login"
 
 # ----- Login -----
