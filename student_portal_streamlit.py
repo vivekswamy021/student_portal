@@ -80,12 +80,12 @@ if st.session_state['page'] == "Home":
 # ----- Register -----
 elif st.session_state['page'] == "Register":
     st.subheader("Create Account")
-    name = st.text_input("Full Name")
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
-    course = st.text_input("Course")
+    name = st.text_input("Full Name", key="reg_name")
+    email = st.text_input("Email", key="reg_email")
+    password = st.text_input("Password", type="password", key="reg_pass")
+    course = st.text_input("Course", key="reg_course")
 
-    if st.button("Register"):
+    if st.button("Register", key="register_btn"):
         if name and email and password and course:
             success = add_student(name, email, password, course)
             if success:
@@ -96,17 +96,18 @@ elif st.session_state['page'] == "Register":
         else:
             st.warning("Please fill in all fields.")
 
+    # Working "Go to Login" button
     st.markdown("Already have an account?")
-    if st.button("Go to Login", key="login_redirect"):
+    if st.button("Go to Login", key="go_login"):
         st.session_state['page'] = "Login"
 
 # ----- Login -----
 elif st.session_state['page'] == "Login":
     st.subheader("Login")
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_pass")
 
-    if st.button("Login"):
+    if st.button("Login", key="login_btn"):
         result = login_student(email, password)
         if result:
             st.session_state['user'] = result
@@ -135,7 +136,7 @@ elif st.session_state['page'] == "Dashboard":
             st.success(f"Uploaded {uploaded_file.name}")
 
         # Logout
-        if st.button("Logout"):
+        if st.button("Logout", key="logout_btn"):
             st.session_state['user'] = None
             st.session_state['page'] = "Home"
             st.success("Logged out successfully.")
