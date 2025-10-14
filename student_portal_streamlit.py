@@ -56,8 +56,9 @@ if 'user' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state['page'] = "Home"
 
+# --------------------------
 # Sidebar Navigation
-st.sidebar.title("Menu")
+# --------------------------
 if st.session_state['user']:
     sidebar_options = ["Dashboard", "Logout"]
 else:
@@ -96,7 +97,7 @@ elif st.session_state['page'] == "Register":
             st.warning("Please fill in all fields.")
 
     st.markdown("Already have an account?")
-    if st.button("Go to Login"):
+    if st.button("Go to Login", key="login_redirect"):
         st.session_state['page'] = "Login"
 
 # ----- Login -----
