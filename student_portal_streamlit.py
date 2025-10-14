@@ -96,11 +96,11 @@ elif st.session_state['page'] == "Register":
         else:
             st.warning("Please fill in all fields.")
 
-    # ✅ Clickable "Login here" link
+    # ----- Clickable Link to Login -----
     st.markdown("Already have an account?")
-    def go_to_login():
+    # Simulate a link using a button with minimal styling
+    if st.button("Login here", key="login_link"):
         st.session_state['page'] = "Login"
-    st.button("Login here", key="login_link", on_click=go_to_login)
 
 # ----- Login -----
 elif st.session_state['page'] == "Login":
